@@ -134,4 +134,4 @@ Laravel Framework Proficiency: Knowledge of MVC architecture, Eloquent ORM, data
 
 Problem-Solving & Adaptability: Addressing assignment constraints by providing a comprehensive conceptual solution.
 
-Thank you for your time and consideration.
+Thank you for your time and consideration
