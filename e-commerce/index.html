@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilkamal Furniture - E-commerce Sample</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom font for a clean look */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        /* Hide scrollbar for a cleaner look */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Custom styling for product card hover effect */
+        .product-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        /* Custom styling for buttons */
+        .btn-primary {
+            background-image: linear-gradient(to right, #4CAF50 0%, #66BB6A 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px 0 rgba(76, 175, 80, 0.75);
+        }
+        .btn-primary:hover {
+            background-image: linear-gradient(to right, #66BB6A 0%, #4CAF50 100%);
+            box-shadow: 0 4px 15px 0 rgba(76, 175, 80, 0.9);
+        }
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* Message Box Styling */
+        #message-box {
+            animation: fadeInOut 3s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .cart-item-image {
+            width: 80px; /* Fixed width for cart item images */
+            height: 80px; /* Fixed height for cart item images */
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <img src="https://placehold.co/40x40/4CAF50/ffffff?text=N" alt="Nilkamal Logo" class="rounded-full">
+                <span class="text-2xl font-bold text-green-600">Nilkamal</span>
+            </div>
+
+            <!-- Navigation Links (Hidden on small screens, shown on medium and up) -->
+            <nav class="hidden md:flex flex-grow justify-center space-x-8 text-lg font-medium" id="main-nav">
+                <a href="#" class="text-gray-700 hover:text-green-600 transition-colors duration-200 nav-link" data-en="Home" data-hi="होम">Home</a>
+                <a href="#" class="text-gray-700 hover:text-green-600 transition-colors duration-200 nav-link" data-en="Shop" data-hi="दुकान">Shop</a>
+                <a href="#" class="text-gray-700 hover:text-green-600 transition-colors duration-200 nav-link" data-en="Categories" data-hi="श्रेणियाँ">Categories</a>
+                <a href="#" class="text-gray-700 hover:text-green-600 transition-colors duration-200 nav-link" data-en="About Us" data-hi="हमारे बारे में">About Us</a>
+                <a href="#" class="text-gray-700 hover:text-green-600 transition-colors duration-200 nav-link" data-en="Contact" data-hi="संपर्क करें">Contact</a>
+            </nav>
+
+            <!-- Right Section: Search, Cart, Language Switcher -->
+            <div class="flex items-center space-x-4">
+                <!-- Search Icon (for mobile) -->
+                <button class="md:hidden text-gray-600 hover:text-green-600 text-xl focus:outline-none">
+                    <i class="fas fa-search"></i>
+                </button>
+                <!-- Search Input (for desktop) -->
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <!-- Cart Icon -->
+                <button id="cart-icon-btn" class="relative text-gray-600 hover:text-green-600 text-xl">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+                <!-- User/Auth Section -->
+                <div class="relative inline-block text-left">
+                    <button id="auth-toggle" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" type="button">
+                        <span id="auth-status" data-en="Guest" data-hi="अतिथि">Guest</span>
+                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div id="auth-dropdown" class="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="auth-toggle">
+                            <a href="#" id="login-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-en="Login" data-hi="लॉगिन करें">Login</a>
+                            <a href="#" id="register-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-en="Register" data-hi="रजिस्टर करें">Register</a>
+                            <a href="#" id="logout-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hidden" role="menuitem" data-en="Logout" data-hi="लॉगआउट करें">Logout</a>
+                            <a href="#" id="my-orders-link" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hidden" role="menuitem" data-en="My Orders" data-hi="मेरे आदेश">My Orders</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Language Switcher -->
+                <div class="relative inline-block text-left">
+                    <button id="language-toggle" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" type="button">
+                        <span id="current-lang" data-en="English" data-hi="हिंदी">English</span>
+                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div id="language-dropdown" class="origin-top-right absolute right-0 mt-2 w-24 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="language-toggle">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-lang="en">English</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-lang="hi">हिंदी</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-green-600 text-xl focus:outline-none ml-4">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- Mobile Navigation (hidden by default) -->
+        <nav id="mobile-nav" class="hidden md:hidden mt-4 space-y-2 text-center text-lg font-medium">
+            <a href="#" class="block text-gray-700 hover:text-green-600 py-2 nav-link" data-en="Home" data-hi="होम">Home</a>
+            <a href="#" class="block text-gray-700 hover:text-green-600 py-2 nav-link" data-en="Shop" data-hi="दुकान">Shop</a>
+            <a href="#" class="block text-gray-700 hover:text-green-600 py-2 nav-link" data-en="Categories" data-hi="श्रेणियाँ">Categories</a>
+            <a href="#" class="block text-gray-700 hover:text-green-600 py-2 nav-link" data-en="About Us" data-hi="हमारे बारे में">About Us</a>
+            <a href="#" class="block text-gray-700 hover:text-green-600 py-2 nav-link" data-en="Contact" data-hi="संपर्क करें">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section id="home-section" class="bg-gradient-to-r from-green-500 to-green-700 text-white py-20 px-6 md:px-12 text-center">
+            <div class="container mx-auto">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight" data-en="Discover Your Perfect Furniture" data-hi="अपने सपनों का फर्नीचर खोजें">Discover Your Perfect Furniture</h1>
+                <p class="text-lg md:text-xl mb-8 opacity-90" data-en="Quality, comfort, and style for every home." data-hi="हर घर के लिए गुणवत्ता, आराम और शैली।">Quality, comfort, and style for every home.</p>
+                <button class="btn-primary text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg" data-en="Shop Now" data-hi="अभी खरीदारी करें">Shop Now</button>
+            </div>
+        </section>
+
+        <!-- Categories Section (Optional, could be dynamic) -->
+        <section id="categories-section" class="py-16 px-6 md:px-12">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-10" data-en="Popular Categories" data-hi="लोकप्रिय श्रेणियाँ">Popular Categories</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Category Card 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden product-card transform hover:scale-105">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.GiW65xndiFifed1JXaIjUAHaDf?pid=Api&P=0&h=180" alt="Sofas" class="w-full h-48 object-cover">
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2" data-en="Sofas" data-hi="सोफा">Sofas</h3>
+                            <p class="text-gray-600 text-sm" data-en="Comfortable and stylish seating solutions." data-hi="आरामदायक और स्टाइलिश बैठने के समाधान।">Comfortable and stylish seating solutions.</p>
+                        </div>
+                    </div>
+                    <!-- Category Card 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden product-card transform hover:scale-105">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.HToE3vO4T0pQLnLx3YjsAgHaET?pid=Api&P=0&h=180" alt="Beds" class="w-full h-48 object-cover">
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2" data-en="Beds" data-hi="बिस्तर">Beds</h3>
+                            <p class="text-gray-600 text-sm" data-en="Restful sleep with our elegant beds." data-hi="हमारे सुंदर बिस्तरों के साथ आरामदायक नींद।">Restful sleep with our elegant beds.</p>
+                        </div>
+                    </div>
+                    <!-- Category Card 3 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden product-card transform hover:scale-105">
+                        <img src="https://tse3.mm.bing.net/th/id/OIP.rgQNdYrhYdisBTXqJpO2cwHaE8?pid=Api&P=0&h=180" alt="Tables" class="w-full h-48 object-cover">
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2" data-en="Tables" data-hi="मेज">Tables</h3>
+                            <p class="text-gray-600 text-sm" data-en="Dining, coffee, and side tables." data-hi="डाइनिंग, कॉफी और साइड टेबल।">Dining, coffee, and side tables.</p>
+                        </div>
+                    </div>
+                    <!-- Category Card 4 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden product-card transform hover:scale-105">
+                        <img src="https://tse4.mm.bing.net/th/id/OIP.XKnwUvlxHAo29cMRZJ79BgHaHa?pid=Api&P=0&h=180" alt="Chairs" class="w-full h-48 object-cover">
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2" data-en="Chairs" data-hi="कुर्सियाँ">Chairs</h3>
+                            <p class="text-gray-600 text-sm" data-en="Ergonomic and stylish chairs for every room." data-hi="हर कमरे के लिए एर्गोनोमिक और स्टाइलिश कुर्सियाँ।">Ergonomic and stylish chairs for every room.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products Section -->
+        <section id="shop-section" class="py-16 px-6 md:px-12 bg-gray-50">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-10" data-en="Featured Products" data-hi="विशेष उत्पाद">Featured Products</h2>
+                <div id="featured-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Products will be dynamically loaded here by JavaScript -->
+                    <div id="loading-spinner" class="col-span-full text-center py-10">
+                        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mx-auto"></div>
+                        <p class="mt-4 text-gray-600" data-en="Loading products..." data-hi="उत्पाद लोड हो रहे हैं...">Loading products...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section (Placeholder) -->
+        <section id="about-us-section" class="py-16 px-6 md:px-12 bg-white hidden">
+            <div class="container mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-6" data-en="About Nilkamal" data-hi="नीलकमल के बारे में">About Nilkamal</h2>
+                <p class="text-lg text-gray-700 leading-relaxed" data-en="Nilkamal is a leading furniture brand committed to providing high-quality, comfortable, and stylish furniture solutions for every home. With decades of experience, we pride ourselves on craftsmanship and customer satisfaction. Our mission is to make beautiful and durable furniture accessible to everyone." data-hi="नीलकमल एक प्रमुख फर्नीचर ब्रांड है जो हर घर के लिए उच्च गुणवत्ता वाले, आरामदायक और स्टाइलिश फर्नीचर समाधान प्रदान करने के लिए प्रतिबद्ध है। दशकों के अनुभव के साथ, हम शिल्प कौशल और ग्राहकों की संतुष्टि पर गर्व करते हैं। हमारा मिशन सुंदर और टिकाऊ फर्नीचर को सभी के लिए सुलभ बनाना है।"></p>
+            </div>
+        </section>
+
+        <!-- Contact Section (Placeholder) -->
+        <section id="contact-section" class="py-16 px-6 md:px-12 bg-gray-50 hidden">
+            <div class="container mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-6" data-en="Contact Us" data-hi="हमसे संपर्क करें">Contact Us</h2>
+                <p class="text-lg text-gray-700 mb-4" data-en="Have questions? Reach out to us!" data-hi="कोई प्रश्न है? हमसे संपर्क करें!"></p>
+                <p class="text-md text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>123 Furniture Lane, Design City, India</p>
+                <p class="text-md text-gray-600"><i class="fas fa-phone mr-2"></i>+91 98765 43210</p>
+                <p class="text-md text-gray-600"><i class="fas fa-envelope mr-2"></i>info@nilkamal.com</p>
+                <form class="mt-8 max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
+                    <div class="mb-4">
+                        <input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="mb-4">
+                        <input type="email" placeholder="Your Email" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="mb-4">
+                        <textarea placeholder="Your Message" rows="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full" data-en="Send Message" data-hi="संदेश भेजें">Send Message</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Login/Register Modal (Hidden by default) -->
+        <div id="auth-modal" class="modal-overlay hidden">
+            <div class="modal-content w-full md:w-1/3">
+                <button class="modal-close-btn" id="close-auth-modal">&times;</button>
+                <h2 id="auth-modal-title" class="text-2xl font-bold mb-6 text-center" data-en="Login" data-hi="लॉगिन करें">Login</h2>
+                <form id="auth-form" class="space-y-4">
+                    <div id="name-field" class="hidden">
+                        <label for="auth-name" class="block text-sm font-medium text-gray-700" data-en="Name" data-hi="नाम">Name</label>
+                        <input type="text" id="auth-name" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="auth-email" class="block text-sm font-medium text-gray-700" data-en="Email" data-hi="ईमेल">Email</label>
+                        <input type="email" id="auth-email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="auth-password" class="block text-sm font-medium text-gray-700" data-en="Password" data-hi="पासवर्ड">Password</label>
+                        <input type="password" id="auth-password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div id="confirm-password-field" class="hidden">
+                        <label for="auth-confirm-password" class="block text-sm font-medium text-gray-700" data-en="Confirm Password" data-hi="पासवर्ड की पुष्टि करें">Confirm Password</label>
+                        <input type="password" id="auth-confirm-password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="btn-primary w-full py-2 text-white font-semibold rounded-md" data-en="Login" data-hi="लॉगिन करें">Login</button>
+                </form>
+                <p id="auth-switch-text" class="mt-4 text-center text-sm text-gray-600" data-en="Don't have an account? " data-hi="खाता नहीं है? ">Don't have an account? <a href="#" id="switch-auth-mode" class="text-green-600 hover:underline" data-en="Register" data-hi="रजिستر करें">Register</a></p>
+            </div>
+        </div>
+
+        <!-- Cart Modal (Hidden by default) -->
+        <div id="cart-modal" class="modal-overlay hidden">
+            <div class="modal-content w-full md:w-2/3 lg:w-1/2">
+                <button class="modal-close-btn" id="close-cart-modal">&times;</button>
+                <h2 class="text-2xl font-bold mb-6 text-center" data-en="Your Shopping Cart" data-hi="आपकी खरीदारी की टोकरी">Your Shopping Cart</h2>
+                <div id="cart-items-container" class="space-y-4">
+                    <!-- Cart items will be rendered here -->
+                </div>
+                <div id="cart-empty-message" class="text-center py-8 text-gray-500 hidden" data-en="Your cart is empty." data-hi="आपकी टोकरी खाली है।">Your cart is empty.</div>
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                    <span class="text-xl font-bold" data-en="Total:" data-hi="कुल:">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-green-700">₹0.00</span>
+                </div>
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button id="clear-cart-btn" class="btn-secondary py-2 px-4 rounded-full" data-en="Clear Cart" data-hi="टोकरी खाली करें">Clear Cart</button>
+                    <button id="checkout-btn" class="btn-primary py-2 px-4 rounded-full" data-en="Checkout" data-hi="चेकआउट करें">Checkout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Modal (Hidden by default) -->
+        <div id="checkout-modal" class="modal-overlay hidden">
+            <div class="modal-content w-full md:w-2/3 lg:w-1/2">
+                <button class="modal-close-btn" id="close-checkout-modal">&times;</button>
+                <h2 class="text-2xl font-bold mb-6 text-center" data-en="Checkout" data-hi="चेकआउट करें">Checkout</h2>
+
+                <!-- Checkout Steps Navigation -->
+                <div class="flex justify-around mb-6 text-center">
+                    <div class="flex-1">
+                        <span id="step-1-indicator" class="font-semibold text-green-600" data-en="1. Shipping" data-hi="1. शिपिंग">1. Shipping</span>
+                        <div class="h-1 bg-green-600 rounded-full mt-1"></div>
+                    </div>
+                    <div class="flex-1">
+                        <span id="step-2-indicator" class="font-semibold text-gray-400" data-en="2. Payment" data-hi="2. भुगतान">2. Payment</span>
+                        <div class="h-1 bg-gray-300 rounded-full mt-1"></div>
+                    </div>
+                    <div class="flex-1">
+                        <span id="step-3-indicator" class="font-semibold text-gray-400" data-en="3. Confirm" data-hi="3. पुष्टि करें">3. Confirm</span>
+                        <div class="h-1 bg-gray-300 rounded-full mt-1"></div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Shipping Address -->
+                <div id="checkout-step-1" class="checkout-step">
+                    <h3 class="text-xl font-semibold mb-4" data-en="Shipping Information" data-hi="शिपिंग जानकारी">Shipping Information</h3>
+                    <form id="shipping-form" class="space-y-4">
+                        <div>
+                            <label for="shipping-address" class="block text-sm font-medium text-gray-700" data-en="Shipping Address" data-hi="शिपिंग पता">Shipping Address</label>
+                            <textarea id="shipping-address" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="Enter full shipping address"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full py-2 text-white font-semibold rounded-md" data-en="Proceed to Payment" data-hi="भुगतान के लिए आगे बढ़ें">Proceed to Payment</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Payment Details (Simulated) -->
+                <div id="checkout-step-2" class="checkout-step hidden">
+                    <h3 class="text-xl font-semibold mb-4" data-en="Payment Details" data-hi="भुगतान विवरण">Payment Details</h3>
+                    <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-6 rounded-md" role="alert">
+                        <p class="font-bold" data-en="Simulated Payment Gateway" data-hi="सिम्युलेटेड भुगतान गेटवे">Simulated Payment Gateway</p>
+                        <p class="text-sm" data-en="This is a demonstration. No actual payment will be processed." data-hi="यह एक प्रदर्शन है। कोई वास्तविक भुगतान संसाधित नहीं किया जाएगा।">This is a demonstration. No actual payment will be processed.</p>
+                    </div>
+                    <form id="payment-form" class="space-y-4">
+                        <div>
+                            <label for="card-number" class="block text-sm font-medium text-gray-700" data-en="Card Number" data-hi="कार्ड नंबर">Card Number</label>
+                            <input type="text" id="card-number" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="XXXX XXXX XXXX XXXX">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="expiry-date" class="block text-sm font-medium text-gray-700" data-en="Expiry Date" data-hi="समाप्ति तिथि">Expiry Date</label>
+                                <input type="text" id="expiry-date" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="MM/YY">
+                            </div>
+                            <div>
+                                <label for="cvv" class="block text-sm font-medium text-gray-700">CVV</label>
+                                <input type="text" id="cvv" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="XXX">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary w-full py-2 text-white font-semibold rounded-md" data-en="Confirm Payment" data-hi="भुगतान की पुष्टि करें">Confirm Payment</button>
+                        <button type="button" id="back-to-shipping" class="btn-secondary w-full py-2 text-gray-700 font-semibold rounded-md mt-2" data-en="Back to Shipping" data-hi="शिपिंग पर वापस जाएं">Back to Shipping</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Order Confirmation -->
+                <div id="checkout-step-3" class="checkout-step hidden">
+                    <h3 class="text-xl font-semibold mb-4" data-en="Order Summary" data-hi="आदेश सारांश">Order Summary</h3>
+                    <div id="order-summary-details" class="bg-gray-100 p-4 rounded-md space-y-2">
+                        <p><strong data-en="Shipping Address:" data-hi="शिपिंग पता:">Shipping Address:</strong> <span id="summary-shipping-address"></span></p>
+                        <p><strong data-en="Total Amount:" data-hi="कुल राशि:">Total Amount:</strong> <span id="summary-total-amount" class="text-green-700 font-bold"></span></p>
+                        <p><strong data-en="Items:" data-hi="वस्तुएं:">Items:</strong></p>
+                        <ul id="summary-items-list" class="list-disc list-inside ml-4"></ul>
+                    </div>
+                    <button id="place-order-btn" class="btn-primary w-full py-2 text-white font-semibold rounded-md mt-6" data-en="Place Order" data-hi="आदेश दें">Place Order</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Orders Modal (Hidden by default) -->
+        <div id="my-orders-modal" class="modal-overlay hidden">
+            <div class="modal-content w-full md:w-2/3 lg:w-1/2">
+                <button class="modal-close-btn" id="close-my-orders-modal">&times;</button>
+                <h2 class="text-2xl font-bold mb-6 text-center" data-en="My Orders" data-hi="मेरे आदेश">My Orders</h2>
+                <div id="orders-list-container" class="space-y-4">
+                    <!-- Orders will be rendered here -->
+                </div>
+                <div id="no-orders-message" class="text-center py-8 text-gray-500 hidden" data-en="You have no orders yet." data-hi="आपके पास अभी तक कोई आदेश नहीं है।">You have no orders yet.</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Call to Action / Newsletter Section -->
+    <section class="bg-green-600 text-white py-16 px-6 md:px-12 text-center">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4" data-en="Stay Updated with Our Latest Collections!" data-hi="हमारे नवीनतम संग्रहों से अपडेट रहें!">Stay Updated with Our Latest Collections!</h2>
+            <p class="text-lg mb-8 opacity-90" data-en="Subscribe to our newsletter for exclusive offers and new arrivals." data-hi="विशेष ऑफ़र और नए आगमन के लिए हमारे न्यूज़लेटर की सदस्यता लें।">Subscribe to our newsletter for exclusive offers and new arrivals.</p>
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <input type="email" placeholder="Your Email Address" class="w-full sm:w-80 p-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white">
+                <button class="btn-secondary bg-white text-green-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300" data-en="Subscribe" data-hi="सदस्यता लें">Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-gray-300 py-12 px-6 md:px-12">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Company Info -->
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4">Nilkamal</h3>
+                <p class="text-sm leading-relaxed" data-en="Your trusted partner for quality furniture. We bring comfort and style to your home." data-hi="गुणवत्ता वाले फर्नीचर के लिए आपका विश्वसनीय साथी। हम आपके घर में आराम और शैली लाते हैं।">Your trusted partner for quality furniture. We bring comfort and style to your home.</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4" data-en="Quick Links" data-hi="त्वरित लिंक">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Shop All" data-hi="सभी खरीदारी करें">Shop All</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="New Arrivals" data-hi="नया आगमन">New Arrivals</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Best Sellers" data-hi="सबसे ज्यादा बिकने वाले">Best Sellers</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Sale" data-hi="बिक्री">Sale</a></li>
+                </ul>
+            </div>
+            <!-- Customer Service -->
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4" data-en="Customer Service" data-hi="ग्राहक सेवा">Customer Service</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="FAQs" data-hi="अक्सर पूछे जाने वाले प्रश्न">FAQs</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Shipping & Returns" data-hi="शिपिंग और रिटर्न">Shipping & Returns</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors duration-200" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
+                </ul>
+            </div>
+            <!-- Contact Info & Social -->
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4" data-en="Contact Us" data-hi="हमसे संपर्क करें">Contact Us</h3>
+                <p class="text-sm mb-2"><i class="fas fa-map-marker-alt mr-2"></i>123 Furniture Lane, Design City, India</p>
+                <p class="text-sm mb-2"><i class="fas fa-phone mr-2"></i>+91 98765 43210</p>
+                <p class="text-sm mb-4"><i class="fas fa-envelope mr-2"></i>info@nilkamal.com</p>
+                <div class="flex space-x-4 text-xl">
+                    <a href="#" class="hover:text-white transition-colors duration-200"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="hover:text-white transition-colors duration-200"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-white transition-colors duration-200"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-white transition-colors duration-200"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+            &copy; <span id="current-year"></span> Nilkamal. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Message Box Container -->
+    <div id="message-box" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+        <span id="message-text"></span>
+        <button id="close-message" class="ml-4 text-gray-400 hover:text-white">&times;</button>
+    </div>
+
+    <script>
+        // --- Global Variables and DOM Elements ---
+        const languageToggleBtn = document.getElementById('language-toggle');
+        const languageDropdown = document.getElementById('language-dropdown');
+        const currentLangSpan = document.getElementById('current-lang');
+        const translatableElements = document.querySelectorAll('[data-en], [data-hi]');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileNav = document.getElementById('mobile-nav');
+        const featuredProductsContainer = document.getElementById('featured-products-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const mainContent = document.getElementById('main-content');
+
+        // Message Box Elements
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        const closeMessageBtn = document.getElementById('close-message');
+
+        // Auth Modal Elements
+        const authModal = document.getElementById('auth-modal');
+        const closeAuthModalBtn = document.getElementById('close-auth-modal');
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const authForm = document.getElementById('auth-form');
+        const nameField = document.getElementById('name-field');
+        const authNameInput = document.getElementById('auth-name');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const confirmPasswordField = document.getElementById('confirm-password-field');
+        const authConfirmPasswordInput = document.getElementById('auth-confirm-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const authSwitchText = document.getElementById('auth-switch-text');
+        const switchToRegisterLink = document.getElementById('switch-to-register');
+        const loginLink = document.getElementById('login-link');
+        const registerLink = document.getElementById('register-link');
+        const logoutLink = document.getElementById('logout-link');
+        const myOrdersLink = document.getElementById('my-orders-link');
+        const authStatusSpan = document.getElementById('auth-status');
+        const authToggleBtn = document.getElementById('auth-toggle');
+        const authDropdown = document.getElementById('auth-dropdown');
+
+        // Cart Modal Elements
+        const cartIconBtn = document.getElementById('cart-icon-btn');
+        const cartCountSpan = document.getElementById('cart-count');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCartModalBtn = document.getElementById('close-cart-modal');
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const cartEmptyMessage = document.getElementById('cart-empty-message');
+        const cartTotalSpan = document.getElementById('cart-total');
+        const clearCartBtn = document.getElementById('clear-cart-btn');
+        const checkoutBtn = document.getElementById('checkout-btn');
+
+        // Checkout Modal Elements
+        const checkoutModal = document.getElementById('checkout-modal');
+        const closeCheckoutModalBtn = document = document.getElementById('close-checkout-modal');
+        const step1Indicator = document.getElementById('step-1-indicator');
+        const step2Indicator = document.getElementById('step-2-indicator');
+        const step3Indicator = document.getElementById('step-3-indicator');
+        const checkoutStep1 = document.getElementById('checkout-step-1');
+        const checkoutStep2 = document.getElementById('checkout-step-2');
+        const checkoutStep3 = document.getElementById('checkout-step-3');
+        const shippingForm = document.getElementById('shipping-form');
+        const shippingAddressInput = document.getElementById('shipping-address');
+        const paymentForm = document.getElementById('payment-form');
+        const backToShippingBtn = document.getElementById('back-to-shipping');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        const summaryShippingAddress = document.getElementById('summary-shipping-address');
+        const summaryTotalAmount = document.getElementById('summary-total-amount');
+        const summaryItemsList = document.getElementById('summary-items-list');
+
+        // My Orders Modal Elements
+        const myOrdersModal = document.getElementById('my-orders-modal');
+        const closeMyOrdersModalBtn = document.getElementById('close-my-orders-modal');
+        const ordersListContainer = document.getElementById('orders-list-container');
+        const noOrdersMessage = document.getElementById('no-orders-message');
+
+        // --- State Variables ---
+        let currentLanguage = 'en';
+        let isAuthenticated = false;
+        let currentUser = null;
+        let userCart = { items: [] }; // Simulate cart data
+        let userOrders = []; // Simulate orders data
+        let currentCheckoutStep = 1;
+        let checkoutDetails = {
+            shipping_address: '',
+            billing_address: '', // For simplicity, assume same as shipping for now
+            cart_snapshot: [],
+            total_amount: 0
+        };
+
+        // Mock product data (moved to global scope)
+        const allProductsData = [
+            { id: 1, name_en: 'Elegant Modern Sofa', name_hi: 'शानदार आधुनिक सोफा', description_en: 'A comfortable and stylish addition to your living room.', description_hi: 'आपके लिविंग रूम के लिए एक आरामदायक और स्टाइलिश जोड़।', price: 45000.00, image_url: 'https://tse4.mm.bing.net/th/id/OIP.GiW65xndiFifed1JXaIjUAHaDf?pid=Api&P=0&h=180', category_id: 1, stock: 10, is_featured: true },
+            { id: 2, name_en: 'Luxurious King Size Bed', name_hi: 'शानदार किंग साइज बेड', description_en: 'Experience ultimate comfort and design.', description_hi: 'परम आराम और डिज़ाइन का अनुभव करें।', price: 60000.00, image_url: 'https://tse3.mm.bing.net/th/id/OIP.HToE3vO4T0pQLnLx3YjsAgHaET?pid=Api&P=0&h=180', category_id: 2, stock: 5, is_featured: true },
+            { id: 3, name_en: 'Modern Dining Table Set', name_hi: 'आधुनिक डाइनिंग टेबल सेट', description_en: 'Perfect for family gatherings and dinners.', description_hi: 'पारिवारिक समारोहों और रात्रिभोज के लिए बिल्कुल सही।', price: 35000.00, image_url: 'https://tse3.mm.bing.net/th/id/OIP.rgQNdYrhYdisBTXqJpO2cwHaE8?pid=Api&P=0&h=180', category_id: 3, stock: 8, is_featured: true },
+            { id: 4, name_en: 'Ergonomic Office Chair', name_hi: 'एर्गोनोमिक ऑफिस चेयर', description_en: 'Boost your productivity with comfort.', description_hi: 'आराम से अपनी उत्पादकता बढ़ाएँ।', price: 12000.00, image_url: 'https://tse4.mm.bing.net/th/id/OIP.XKnwUvlxHAo29cMRZJ79BgHaHa?pid=Api&P=0&h=180', category_id: 4, stock: 20, is_featured: true },
+            { id: 5, name_en: 'Stylish Bookshelf', name_hi: 'स्टाइलिश बुकशेल्फ़', description_en: 'Organize your books with elegance.', description_hi: 'अपनी किताबों को सुंदरता से व्यवस्थित करें।', price: 8500.00, image_url: 'https://tse2.mm.bing.net/th/id/OIP.yO3tW2iFzH6y2x3qgG51bQHaHa?pid=Api&P=0&h=180', category_id: 5, stock: 15, is_featured: false },
+            { id: 6, name_en: 'Spacious Wardrobe', name_hi: 'विशाल अलमारी', description_en: 'Ample storage for your clothes.', description_hi: 'आपके कपड़ों के लिए पर्याप्त भंडारण।', price: 28000.00, image_url: 'https://tse1.mm.bing.net/th/id/OIP.FBL8Y56ka_q6pL457IcGuwHaGa?pid=Api&P=0&h=180', category_id: 5, stock: 7, is_featured: true },
+            { id: 7, name_en: 'Minimalist Side Table', name_hi: 'न्यूनतम साइड टेबल', description_en: 'Perfect for small spaces and decor.', description_hi: 'छोटी जगहों और सजावट के लिए बिल्कुल सही।', price: 4000.00, image_url: 'https://tse1.mm.bing.net/th/id/OIP.H_gJz4c_eK2g2f7XwX2bXQHaE8?pid=Api&P=0&h=180', category_id: 3, stock: 25, is_featured: false },
+            { id: 8, name_en: 'Compact Shoe Rack', name_hi: 'कॉम्पैक्ट शू रैक', description_en: 'Keep your footwear organized.', description_hi: 'अपने जूते-चप्पलों को व्यवस्थित रखें।', price: 3000.00, image_url: 'https://tse3.mm.bing.net/th/id/OIP.6Qz2c7mS9k-7tW3B5Q8-uwHaHa?pid=Api&P=0&h=180', category_id: 5, stock: 30, is_featured: false }
+        ];
+
+
+        // --- Utility Functions ---
+
+        // Show message box
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Show/Hide Modals
+        function showModal(modalElement) {
+            modalElement.classList.remove('hidden');
+        }
+
+        function hideModal(modalElement) {
+            modalElement.classList.add('hidden');
+        }
+
+        // Switch content sections
+        function showSection(sectionId) {
+            document.querySelectorAll('main section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            // Hide mobile nav if open
+            mobileNav.classList.add('hidden');
+        }
+
+        // --- Language Switching ---
+        function updateContent(lang) {
+            translatableElements.forEach(element => {
+                if (lang === 'en' && element.dataset.en) {
+                    element.textContent = element.dataset.en;
+                } else if (lang === 'hi' && element.dataset.hi) {
+                    element.textContent = element.dataset.hi;
+                }
+            });
+            currentLangSpan.textContent = currentLangSpan.dataset[lang];
+            document.documentElement.lang = lang;
+            // Re-render dynamic content (products, cart, orders)
+            fetchFeaturedProducts();
+            updateCartDisplay();
+            if (isAuthenticated) {
+                fetchUserOrders();
+            }
+        }
+
+        languageToggleBtn.addEventListener('click', () => {
+            languageDropdown.classList.toggle('hidden');
+        });
+
+        languageDropdown.addEventListener('click', (event) => {
+            if (event.target.tagName === 'A' && event.target.dataset.lang) {
+                currentLanguage = event.target.dataset.lang;
+                updateContent(currentLanguage);
+                languageDropdown.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!languageToggleBtn.contains(event.target) && !languageDropdown.contains(event.target)) {
+                languageDropdown.classList.add('hidden');
+            }
+            if (!authToggleBtn.contains(event.target) && !authDropdown.contains(event.target)) {
+                authDropdown.classList.add('hidden');
+            }
+        });
+
+        // --- Authentication (Simulated) ---
+
+        function updateAuthUI() {
+            if (isAuthenticated) {
+                authStatusSpan.textContent = currentUser ? currentUser.name : (currentLanguage === 'en' ? 'Logged In' : 'लॉग इन');
+                loginLink.classList.add('hidden');
+                registerLink.classList.add('hidden');
+                logoutLink.classList.remove('hidden');
+                myOrdersLink.classList.remove('hidden');
+            } else {
+                authStatusSpan.textContent = currentLanguage === 'en' ? 'Guest' : 'अतिथि';
+                loginLink.classList.remove('hidden');
+                registerLink.classList.remove('hidden');
+                logoutLink.classList.add('hidden');
+                myOrdersLink.classList.add('hidden');
+            }
+        }
+
+        // Function to set the auth modal to login mode
+        function setAuthModalToLogin() {
+            authModalTitle.textContent = currentLanguage === 'en' ? 'Login' : 'लॉगिन करें';
+            authSubmitBtn.textContent = currentLanguage === 'en' ? 'Login' : 'लॉगिन करें';
+            authSubmitBtn.dataset.en = 'Login'; // Important for form submission logic
+            nameField.classList.add('hidden');
+            confirmPasswordField.classList.add('hidden');
+            authSwitchText.innerHTML = (currentLanguage === 'en' ? "Don't have an account? " : "खाता नहीं है? ") + `<a href="#" id="switch-auth-mode" class="text-green-600 hover:underline" data-en="Register" data-hi="रजिस्टर करें">${currentLanguage === 'en' ? 'Register' : 'रजिस्टर करें'}</a>`;
+            // Ensure the listener for the dynamically created link is re-attached
+            document.getElementById('switch-auth-mode').addEventListener('click', toggleAuthMode);
+        }
+
+        // Function to set the auth modal to register mode
+        function setAuthModalToRegister() {
+            authModalTitle.textContent = currentLanguage === 'en' ? 'Register' : 'रजिस्टर करें';
+            authSubmitBtn.textContent = currentLanguage === 'en' ? 'Register' : 'रजिस्टर करें';
+            authSubmitBtn.dataset.en = 'Register'; // Important for form submission logic
+            nameField.classList.remove('hidden');
+            confirmPasswordField.classList.remove('hidden');
+            authSwitchText.innerHTML = (currentLanguage === 'en' ? "Already have an account? " : "पहले से ही खाता है? ") + `<a href="#" id="switch-auth-mode" class="text-green-600 hover:underline" data-en="Login" data-hi="लॉगिन करें">${currentLanguage === 'en' ? 'Login' : 'लॉगिन करें'}</a>`;
+            // Ensure the listener for the dynamically created link is re-attached
+            document.getElementById('switch-auth-mode').addEventListener('click', toggleAuthMode);
+        }
+
+        // Toggles between login and register modes
+        function toggleAuthMode(e) {
+            if (e) e.preventDefault();
+            const currentMode = authSubmitBtn.dataset.en;
+            if (currentMode === 'Login') {
+                setAuthModalToRegister();
+            } else {
+                setAuthModalToLogin();
+            }
+        }
+
+        authToggleBtn.addEventListener('click', () => {
+            authDropdown.classList.toggle('hidden');
+        });
+
+        loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            setAuthModalToLogin();
+            showModal(authModal);
+            authDropdown.classList.add('hidden');
+        });
+
+        registerLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            setAuthModalToRegister();
+            showModal(authModal);
+            authDropdown.classList.add('hidden');
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = authEmailInput.value.trim();
+            const password = authPasswordInput.value.trim();
+            const name = authNameInput.value.trim();
+            const confirmPassword = authConfirmPasswordInput.value.trim();
+            const isRegister = authSubmitBtn.dataset.en === 'Register';
+
+            if (!email || !password || (isRegister && (!name || !confirmPassword))) {
+                showMessage(currentLanguage === 'en' ? 'All fields are required!' : 'सभी फ़ील्ड आवश्यक हैं!');
+                return;
+            }
+
+            if (isRegister) {
+                if (password !== confirmPassword) {
+                    showMessage(currentLanguage === 'en' ? 'Passwords do not match!' : 'पासवर्ड मेल नहीं खाते!');
+                    return;
+                }
+                // Simulate Register API Call
+                showMessage(currentLanguage === 'en' ? 'Registering...' : 'रजिस्टर हो रहा है...');
+                await new Promise(r => setTimeout(r, 1000));
+                // Mock success
+                isAuthenticated = true;
+                currentUser = { name: name, email: email, id: 'user_' + Math.random().toString(36).substr(2, 9) };
+                showMessage(currentLanguage === 'en' ? 'Registration successful! Logged in.' : 'पंजीकरण सफल! लॉग इन किया गया।');
+            } else {
+                // Simulate Login API Call
+                showMessage(currentLanguage === 'en' ? 'Logging in...' : 'लॉग इन हो रहा है...');
+                await new Promise(r => setTimeout(r, 1000));
+                // Mock success (replace with actual API call)
+                if (email === 'test@example.com' && password === 'password') {
+                    isAuthenticated = true;
+                    currentUser = { name: 'Test User', email: email, id: 'user_test' };
+                    showMessage(currentLanguage === 'en' ? 'Login successful!' : 'लॉगिन सफल!');
+                } else {
+                    showMessage(currentLanguage === 'en' ? 'Invalid credentials.' : 'अमान्य क्रेडेंशियल।');
+                    isAuthenticated = false;
+                    currentUser = null;
+                }
+            }
+            updateAuthUI();
+            hideModal(authModal);
+            // After login/register, fetch user's cart and orders
+            if (isAuthenticated) {
+                fetchUserCart();
+                fetchUserOrders();
+            }
+        });
+
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            showMessage(currentLanguage === 'en' ? 'Logging out...' : 'लॉग आउट हो रहा है...');
+            await new Promise(r => setTimeout(r, 500));
+            isAuthenticated = false;
+            currentUser = null;
+            userCart = { items: [] }; // Clear cart on logout
+            userOrders = []; // Clear orders on logout
+            updateAuthUI();
+            updateCartDisplay();
+            showMessage(currentLanguage === 'en' ? 'Logged out.' : 'लॉग आउट किया गया।');
+            authDropdown.classList.add('hidden');
+        });
+
+        closeAuthModalBtn.addEventListener('click', () => hideModal(authModal));
+
+        // --- Product Display ---
+
+        function renderProductCard(product) {
+            const productName = currentLanguage === 'en' ? product.name_en : (product.name_hi || product.name_en);
+            const productDescription = currentLanguage === 'en' ? product.description_en : (product.description_hi || product.description_en);
+
+            return `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden product-card">
+                    <img src="${product.image_url}" alt="${productName}" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">${productName}</h3>
+                        <p class="text-gray-600 mb-4">${productDescription}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-700">₹${product.price.toFixed(2)}</span>
+                            <button class="btn-primary add-to-cart-btn text-white font-medium py-2 px-4 rounded-full text-sm" data-product-id="${product.id}" data-en="Add to Cart" data-hi="कार्ट में जोड़ें">${currentLanguage === 'en' ? 'Add to Cart' : 'कार्ट में जोड़ें'}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function fetchFeaturedProducts() {
+            featuredProductsContainer.innerHTML = '';
+            loadingSpinner.classList.remove('hidden');
+
+            // Using the globally defined allProductsData
+            const productsToRender = allProductsData.filter(product => product.is_featured);
+
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+
+            loadingSpinner.classList.add('hidden');
+
+            if (productsToRender.length > 0) {
+                productsToRender.forEach(product => {
+                    featuredProductsContainer.innerHTML += renderProductCard(product);
+                });
+            } else {
+                featuredProductsContainer.innerHTML = `<p class="col-span-full text-center text-red-500" data-en="Failed to load products." data-hi="उत्पाद लोड करने में विफल रहा।">Failed to load products.</p>`;
+            }
+            attachAddToCartListeners(); // Re-attach listeners after rendering
+        }
+
+        // --- Shopping Cart (Simulated) ---
+
+        function updateCartCount() {
+            const totalItems = userCart.items.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountSpan.textContent = totalItems;
+        }
+
+        function updateCartDisplay() {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (userCart.items.length === 0) {
+                cartEmptyMessage.classList.remove('hidden');
+            } else {
+                cartEmptyMessage.classList.add('hidden');
+                userCart.items.forEach(item => {
+                    const productName = currentLanguage === 'en' ? item.product.name_en : (item.product.name_hi || item.product.name_en);
+                    const itemTotal = item.quantity * item.product.price;
+                    total += itemTotal;
+
+                    const cartItemHtml = `
+                        <div class="flex items-center justify-between border-b border-gray-200 py-3">
+                            <div class="flex items-center space-x-4">
+                                <img src="${item.product.image_url}" alt="${productName}" class="cart-item-image">
+                                <div>
+                                    <h4 class="font-semibold">${productName}</h4>
+                                    <p class="text-sm text-gray-600">₹${item.product.price.toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="quantity-btn btn-secondary px-2 py-1 rounded-md" data-item-id="${item.id}" data-action="decrement">-</button>
+                                <span class="font-medium">${item.quantity}</span>
+                                <button class="quantity-btn btn-secondary px-2 py-1 rounded-md" data-item-id="${item.id}" data-action="increment">+</button>
+                                <button class="remove-from-cart-btn text-red-500 hover:text-red-700 ml-2" data-item-id="${item.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    cartItemsContainer.innerHTML += cartItemHtml;
+                });
+            }
+            cartTotalSpan.textContent = `₹${total.toFixed(2)}`;
+            updateCartCount();
+            attachCartItemListeners(); // Attach listeners for quantity and remove buttons
+        }
+
+        async function fetchUserCart() {
+            // Simulate fetching cart from backend
+            showMessage(currentLanguage === 'en' ? 'Fetching cart...' : 'कार्ट प्राप्त कर रहा है...');
+            await new Promise(r => setTimeout(r, 500));
+
+            // Mock response from Laravel CartController@index
+            // For simplicity, we'll initialize with an empty cart or a hardcoded one for demo
+            const mockCartResponse = {
+                status: 'success',
+                data: {
+                    id: 1, // Mock cart ID
+                    user_id: isAuthenticated ? (currentUser ? currentUser.id : null) : null,
+                    session_id: isAuthenticated ? null : 'mock_session_id_123',
+                    items: [] // Start with an empty cart
+                }
+            };
+
+            // If it's the first load and we want some items in cart for demo (only if cart is empty)
+            if (userCart.items.length === 0 && !isAuthenticated) { // Only for initial guest cart
+                 mockCartResponse.data.items = [
+                    { id: 'cart_item_1', product_id: 1, quantity: 1, product: allProductsData.find(p => p.id === 1) },
+                    { id: 'cart_item_2', product_id: 4, quantity: 2, product: allProductsData.find(p => p.id === 4) }
+                ].filter(item => item.product); // Filter out if product not found
+            }
+
+
+            if (mockCartResponse.status === 'success') {
+                userCart = mockCartResponse.data;
+                showMessage(currentLanguage === 'en' ? 'Cart loaded.' : 'कार्ट लोड किया गया।');
+            } else {
+                showMessage(currentLanguage === 'en' ? 'Failed to load cart.' : 'कार्ट लोड करने में विफल।');
+                userCart = { items: [] };
+            }
+            updateCartDisplay();
+        }
+
+        async function addToCart(productId) {
+            showMessage(currentLanguage === 'en' ? 'Adding to cart...' : 'कार्ट में जोड़ रहा है...');
+            await new Promise(r => setTimeout(r, 500));
+
+            // Find the product details from our mock product data
+            const product = allProductsData.find(p => p.id === productId); // Corrected: Use allProductsData
+            if (!product) {
+                showMessage(currentLanguage === 'en' ? 'Product not found!' : 'उत्पाद नहीं मिला!');
+                return;
+            }
+
+            // Simulate API call to add item
+            const existingItem = userCart.items.find(item => item.product_id === productId);
+            if (existingItem) {
+                if (existingItem.quantity + 1 > product.stock) {
+                     showMessage(currentLanguage === 'en' ? `Cannot add more. Only ${product.stock} in stock for ${product.name_en}` : `और नहीं जोड़ सकते। ${product.name_hi || product.name_en} के लिए केवल ${product.stock} स्टॉक में है।`);
+                     return;
+                }
+                existingItem.quantity++;
+            } else {
+                if (1 > product.stock) {
+                    showMessage(currentLanguage === 'en' ? `Out of stock for ${product.name_en}` : `${product.name_hi || product.name_en} स्टॉक में नहीं है।`);
+                    return;
+                }
+                userCart.items.push({
+                    id: 'cart_item_' + Math.random().toString(36).substr(2, 9), // Mock item ID
+                    product_id: productId,
+                    quantity: 1,
+                    product: product // Full product object for display
+                });
+            }
+            showMessage(currentLanguage === 'en' ? 'Product added to cart!' : 'उत्पाद कार्ट में जोड़ा गया!');
+            updateCartDisplay();
+        }
+
+        async function updateCartItemQuantity(itemId, newQuantity) {
+            showMessage(currentLanguage === 'en' ? 'Updating cart...' : 'कार्ट अपडेट कर रहा है...');
+            await new Promise(r => setTimeout(r, 300));
+
+            const itemIndex = userCart.items.findIndex(item => item.id === itemId);
+            if (itemIndex > -1) {
+                if (newQuantity <= 0) {
+                    userCart.items.splice(itemIndex, 1); // Remove if quantity is 0 or less
+                    showMessage(currentLanguage === 'en' ? 'Product removed from cart.' : 'उत्पाद कार्ट से हटा दिया गया।');
+                } else {
+                    // Check stock (simulated)
+                    const product = userCart.items[itemIndex].product;
+                    if (newQuantity > product.stock) {
+                         showMessage(currentLanguage === 'en' ? `Only ${product.stock} in stock for ${product.name_en}` : `${product.name_hi || product.name_en} के लिए केवल ${product.stock} स्टॉक में है।`);
+                         return;
+                    }
+                    userCart.items[itemIndex].quantity = newQuantity;
+                    showMessage(currentLanguage === 'en' ? 'Cart updated.' : 'कार्ट अपडेट किया गया।');
+                }
+            }
+            updateCartDisplay();
+        }
+
+        async function removeCartItem(itemId) {
+            showMessage(currentLanguage === 'en' ? 'Removing from cart...' : 'कार्ट से हटा रहा है...');
+            await new Promise(r => setTimeout(r, 300));
+
+            userCart.items = userCart.items.filter(item => item.id !== itemId);
+            showMessage(currentLanguage === 'en' ? 'Product removed from cart.' : 'उत्पाद कार्ट से हटा दिया गया।');
+            updateCartDisplay();
+        }
+
+        async function clearCart() {
+            showMessage(currentLanguage === 'en' ? 'Clearing cart...' : 'कार्ट खाली कर रहा है...');
+            await new Promise(r => setTimeout(r, 500));
+            userCart.items = [];
+            showMessage(currentLanguage === 'en' ? 'Cart cleared.' : 'कार्ट खाली किया गया।');
+            updateCartDisplay();
+        }
+
+        function attachAddToCartListeners() {
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.onclick = null; // Remove previous listeners
+                button.addEventListener('click', (event) => {
+                    const productId = parseInt(event.target.dataset.productId);
+                    addToCart(productId);
+                });
+            });
+        }
+
+        function attachCartItemListeners() {
+            document.querySelectorAll('.quantity-btn').forEach(button => {
+                button.onclick = null;
+                button.addEventListener('click', (event) => {
+                    const itemId = event.target.dataset.itemId;
+                    const action = event.target.dataset.action;
+                    const currentQuantity = parseInt(event.target.parentNode.querySelector('span').textContent);
+                    let newQuantity = currentQuantity;
+                    if (action === 'increment') {
+                        newQuantity++;
+                    } else if (action === 'decrement') {
+                        newQuantity--;
+                    }
+                    updateCartItemQuantity(itemId, newQuantity);
+                });
+            });
+
+            document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                button.onclick = null;
+                button.addEventListener('click', (event) => {
+                    const itemId = event.target.dataset.itemId;
+                    removeCartItem(itemId);
+                });
+            });
+        }
+
+        cartIconBtn.addEventListener('click', () => {
+            showModal(cartModal);
+            updateCartDisplay(); // Ensure cart display is fresh
+        });
+        closeCartModalBtn.addEventListener('click', () => hideModal(cartModal));
+        clearCartBtn.addEventListener('click', clearCart);
+
+        // --- Checkout Flow (Simulated) ---
+        checkoutBtn.addEventListener('click', () => {
+            if (userCart.items.length === 0) {
+                showMessage(currentLanguage === 'en' ? 'Your cart is empty!' : 'आपकी टोकरी खाली है!');
+                return;
+            }
+            if (!isAuthenticated) {
+                showMessage(currentLanguage === 'en' ? 'Please login to proceed to checkout.' : 'चेकआउट करने के लिए कृपया लॉगिन करें।');
+                hideModal(cartModal);
+                setAuthModalToLogin(); // Ensure login modal is set to login mode
+                showModal(authModal);
+                return;
+            }
+            hideModal(cartModal);
+            currentCheckoutStep = 1;
+            showCheckoutStep(currentCheckoutStep);
+            showModal(checkoutModal);
+        });
+
+        closeCheckoutModalBtn.addEventListener('click', () => hideModal(checkoutModal));
+
+        function showCheckoutStep(step) {
+            document.querySelectorAll('.checkout-step').forEach(s => s.classList.add('hidden'));
+            step1Indicator.classList.remove('text-green-600', 'text-gray-400');
+            step2Indicator.classList.remove('text-green-600', 'text-gray-400');
+            step3Indicator.classList.remove('text-green-600', 'text-gray-400');
+            step1Indicator.nextElementSibling.classList.remove('bg-green-600', 'bg-gray-300');
+            step2Indicator.nextElementSibling.classList.remove('bg-green-600', 'bg-gray-300');
+            step3Indicator.nextElementSibling.classList.remove('bg-green-600', 'bg-gray-300');
+
+            if (step === 1) {
+                checkoutStep1.classList.remove('hidden');
+                step1Indicator.classList.add('text-green-600');
+                step1Indicator.nextElementSibling.classList.add('bg-green-600');
+                step2Indicator.classList.add('text-gray-400');
+                step2Indicator.nextElementSibling.classList.add('bg-gray-300');
+                step3Indicator.classList.add('text-gray-400');
+                step3Indicator.nextElementSibling.classList.add('bg-gray-300');
+            } else if (step === 2) {
+                checkoutStep2.classList.remove('hidden');
+                step1Indicator.classList.add('text-green-600');
+                step1Indicator.nextElementSibling.classList.add('bg-green-600');
+                step2Indicator.classList.add('text-green-600');
+                step2Indicator.nextElementSibling.classList.add('bg-green-600');
+                step3Indicator.classList.add('text-gray-400');
+                step3Indicator.nextElementSibling.classList.add('bg-gray-300');
+            } else if (step === 3) {
+                checkoutStep3.classList.remove('hidden');
+                step1Indicator.classList.add('text-green-600');
+                step1Indicator.nextElementSibling.classList.add('bg-green-600');
+                step2Indicator.classList.add('text-green-600');
+                step2Indicator.nextElementSibling.classList.add('bg-green-600');
+                step3Indicator.classList.add('text-green-600');
+                step3Indicator.nextElementSibling.classList.add('bg-green-600');
+                populateOrderSummary();
+            }
+        }
+
+        shippingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const address = shippingAddressInput.value.trim();
+            if (address) {
+                checkoutDetails.shipping_address = address;
+                checkoutDetails.billing_address = address; // Assuming same for simplicity
+                currentCheckoutStep = 2;
+                showCheckoutStep(currentCheckoutStep);
+            } else {
+                showMessage(currentLanguage === 'en' ? 'Please enter shipping address.' : 'कृपया शिपिंग पता दर्ज करें।');
+            }
+        });
+
+        backToShippingBtn.addEventListener('click', () => {
+            currentCheckoutStep = 1;
+            showCheckoutStep(currentCheckoutStep);
+        });
+
+        paymentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Simulate payment processing
+            showMessage(currentLanguage === 'en' ? 'Processing payment...' : 'भुगतान संसाधित हो रहा है...');
+            await new Promise(r => setTimeout(r, 1500)); // Simulate payment gateway delay
+
+            // Mock payment success
+            showMessage(currentLanguage === 'en' ? 'Payment successful!' : 'भुगतान सफल!');
+            currentCheckoutStep = 3;
+            showCheckoutStep(currentCheckoutStep);
+        });
+
+        function populateOrderSummary() {
+            summaryShippingAddress.textContent = checkoutDetails.shipping_address;
+            summaryTotalAmount.textContent = `₹${userCart.items.reduce((sum, item) => sum + (item.quantity * item.product.price), 0).toFixed(2)}`;
+            summaryItemsList.innerHTML = '';
+            userCart.items.forEach(item => {
+                const productName = currentLanguage === 'en' ? item.product.name_en : (item.product.name_hi || item.product.name_en);
+                const li = document.createElement('li');
+                li.textContent = `${productName} x ${item.quantity} (₹${(item.quantity * item.product.price).toFixed(2)})`;
+                summaryItemsList.appendChild(li);
+            });
+            checkoutDetails.cart_snapshot = JSON.parse(JSON.stringify(userCart.items)); // Deep copy
+            checkoutDetails.total_amount = parseFloat(summaryTotalAmount.textContent.replace('₹', ''));
+        }
+
+        placeOrderBtn.addEventListener('click', async () => {
+            showMessage(currentLanguage === 'en' ? 'Placing order...' : 'आदेश दे रहा है...');
+            await new Promise(r => setTimeout(r, 1000));
+
+            // Simulate API call to place order (OrderController@placeOrder)
+            const mockOrderResponse = {
+                status: 'success',
+                message: 'Order placed successfully!',
+                order: {
+                    id: 'order_' + Math.random().toString(36).substr(2, 9),
+                    user_id: currentUser.id,
+                    order_number: 'ORD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                    total_amount: checkoutDetails.total_amount,
+                    status: 'processing',
+                    payment_status: 'paid',
+                    shipping_address: checkoutDetails.shipping_address,
+                    billing_address: checkoutDetails.billing_address,
+                    created_at: new Date().toISOString(),
+                    items: checkoutDetails.cart_snapshot.map(item => ({
+                        product_id: item.product.id,
+                        quantity: item.quantity,
+                        price: item.product.price,
+                        product: item.product // Include product details for display
+                    }))
+                }
+            };
+
+            if (mockOrderResponse.status === 'success') {
+                showMessage(currentLanguage === 'en' ? 'Order placed successfully!' : 'आदेश सफलतापूर्वक रखा गया!');
+                userOrders.unshift(mockOrderResponse.order); // Add to beginning of orders list
+                userCart.items = []; // Clear cart after order
+                updateCartDisplay();
+                hideModal(checkoutModal);
+                showSection('home-section'); // Go back to home or a confirmation page
+                fetchUserOrders(); // Refresh orders list
+            } else {
+                showMessage(currentLanguage === 'en' ? 'Failed to place order.' : 'आदेश देने में विफल रहा।');
+            }
+        });
+
+        // --- My Orders ---
+        myOrdersLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideModal(authDropdown);
+            showModal(myOrdersModal);
+            fetchUserOrders();
+        });
+
+        closeMyOrdersModalBtn.addEventListener('click', () => hideModal(myOrdersModal));
+
+        async function fetchUserOrders() {
+            if (!isAuthenticated) {
+                ordersListContainer.innerHTML = '';
+                noOrdersMessage.classList.remove('hidden');
+                return;
+            }
+
+            showMessage(currentLanguage === 'en' ? 'Fetching orders...' : 'आदेश प्राप्त कर रहा है...');
+            await new Promise(r => setTimeout(r, 700));
+
+            // Mock response from Laravel OrderController@index
+            const mockOrdersResponse = {
+                status: 'success',
+                data: userOrders // Use our simulated userOrders array
+            };
+
+            ordersListContainer.innerHTML = '';
+            if (mockOrdersResponse.status === 'success' && mockOrdersResponse.data.length > 0) {
+                noOrdersMessage.classList.add('hidden');
+                mockOrdersResponse.data.forEach(order => {
+                    const orderDate = new Date(order.created_at).toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'hi-IN');
+                    const orderStatus = currentLanguage === 'en' ? order.status : (order.status === 'processing' ? 'प्रसंस्करण' : 'पूर्ण'); // Simplified translation
+
+                    let itemsHtml = '';
+                    order.items.forEach(item => {
+                        const productName = currentLanguage === 'en' ? item.product.name_en : (item.product.name_hi || item.product.name_en);
+                        itemsHtml += `<li>${productName} x ${item.quantity} (₹${item.price.toFixed(2)})</li>`;
+                    });
+
+                    const orderCard = `
+                        <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-lg">${currentLanguage === 'en' ? 'Order #' : 'आदेश #'} ${order.order_number}</h3>
+                                <span class="text-sm text-gray-600">${orderDate}</span>
+                            </div>
+                            <p class="text-gray-700"><strong data-en="Total:" data-hi="कुल:">Total:</strong> ₹${order.total_amount.toFixed(2)}</p>
+                            <p class="text-gray-700"><strong data-en="Status:" data-hi="स्थिति:">Status:</strong> <span class="capitalize">${orderStatus}</span></p>
+                            <p class="text-gray-700"><strong data-en="Shipping Address:" data-hi="शिपिंग पता:">Shipping Address:</strong> ${order.shipping_address}</p>
+                            <p class="text-gray-700 mt-2"><strong data-en="Items:" data-hi=" वस्तुएं:">Items:</strong></p>
+                            <ul class="list-disc list-inside ml-4 text-sm">
+                                ${itemsHtml}
+                            </ul>
+                        </div>
+                    `;
+                    ordersListContainer.innerHTML += orderCard;
+                });
+                showMessage(currentLanguage === 'en' ? 'Orders loaded.' : 'आदेश लोड किए गए।');
+            } else {
+                noOrdersMessage.classList.remove('hidden');
+                showMessage(currentLanguage === 'en' ? 'No orders found.' : 'कोई आदेश नहीं मिला।');
+            }
+        }
+
+
+        // --- Event Listeners for Static Elements ---
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const sectionId = event.target.dataset.en.toLowerCase().replace(' ', '-') + '-section';
+                showSection(sectionId);
+                const linkText = currentLanguage === 'en' ? event.target.dataset.en : event.target.dataset.hi;
+                showMessage(`${linkText} clicked!`);
+            });
+        });
+
+        document.querySelector('.md\\:hidden.text-gray-600.hover\\:text-green-600.text-xl.focus\\:outline-none').addEventListener('click', () => {
+            const message = currentLanguage === 'en' ? 'Search icon clicked!' : 'खोज आइकन क्लिक किया गया!';
+            showMessage(message);
+        });
+
+        document.querySelector('.btn-primary[data-en="Shop Now"]').addEventListener('click', () => {
+            showSection('shop-section');
+            const message = currentLanguage === 'en' ? 'Shop Now clicked!' : 'अभी खरीदारी करें क्लिक किया गया!';
+            showMessage(message);
+        });
+
+        document.querySelector('.btn-secondary[data-en="Subscribe"]').addEventListener('click', () => {
+            const message = currentLanguage === 'en' ? 'Subscribe clicked!' : 'सदस्यता लें क्लिक किया गया!';
+            showMessage(message);
+        });
+
+        // Mobile menu toggle
+        mobileMenuButton.addEventListener('click', () => {
+            mobileNav.classList.toggle('hidden');
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateContent(currentLanguage); // This fetches products and updates language
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            updateAuthUI(); // Initialize auth state
+            fetchUserCart(); // Fetch initial cart (even for guests)
+            // Attach listener for the auth mode switch link
+            // This needs to be attached after the initial innerHTML set for authSwitchText
+            const switchAuthModeLink = document.getElementById('switch-auth-mode'); // Re-get the element
+            if (switchAuthModeLink) {
+                switchAuthModeLink.addEventListener('click', toggleAuthMode);
+            }
+        });
+    </script>
+</body>
+</html>
